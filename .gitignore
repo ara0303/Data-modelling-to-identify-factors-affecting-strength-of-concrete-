@@ -1,0 +1,70 @@
+setwd("E:/Spring 2017/Regression/MLR project")
+mlr <- read.csv("traindata.csv")
+head(mlr)
+y <- mlr[,9]
+x1 <- mlr[,1]
+x2 <- mlr[,2]
+x3 <- mlr[,3]
+x4 <- mlr[,4]
+x5 <- mlr[,5]
+x6 <- mlr[,6]
+x7 <- mlr[,7]
+x8 <- mlr[,8]
+traindata <- glm(y ~ x1 + x2 + x3 +x4 + x5 + x6 + x7 + x8, data = mlr)
+traindata
+plot(traindata)#plots of the model
+anova(traindata)#anova
+summary(traindata)#P-value, intercept, standard error, r-sq
+aov(traindata)#anova 
+res <- residuals(traindata)
+resdf <- data.frame(res)
+head(resdf)
+plot(res)#residual plot against index
+fitted <- fitted.values(traindata)#fitted values
+plot(fitted, res, main = "Residual Plot", xlab = "Fitted values", ylab = "Residuals")#residuals vs fitted values
+#Normality
+qqnorm(res, ylab = "Residuals")
+qqline(res)
+#outliers
+car::outlierTest(traindata)
+stdres <- rstudent(traindata)
+stdres[abs(stdres) > 2]#check if any studentized residual > 2
+#correlation
+car::durbinWatsonTest(traindata)
+#leverage
+lev <- hatvalues(traindata)
+plot(lev)
+levthresh <- 2*length(traindata$coefficients/length(lev))
+lev[lev > levthresh]# no influential pts
+#cooksd
+cooksd <- cooks.distance(traindata)
+plot(cooksd)#plot of cooks distance
+cooksd[ cooksd > 1]#all cooks distance < 1
+#levene's test
+sample1 <- resdf[1:400,]
+sample2 <- resdf[401:800,]
+car::leveneTest(sample1, sample2)
+#variance inflation factors
+car::vif(traindata)
+sqrt(car ::vif(traindata)) > 2
+#check for transformation
+plot(x1, res)
+plot(x2, res)
+plot(x3, res)
+plot(x4, res)
+plot(x5, res)
+plot(x6, res)
+plot(x7, res)
+plot(x8, res)
+x9 <- log(x8)
+head(x9)
+plot(x9,res)
+#main model
+model <- lm(y ~ x1 + x2 + x3 +x4 + x5 + x9)
+model
+summary(model)
+aov(model)
+anova(model)
+plot(model)
+resmodel <- residuals(model)
+
